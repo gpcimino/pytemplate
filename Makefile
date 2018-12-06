@@ -16,7 +16,7 @@ default:
 	@echo '    make test            test with coverage report'
 	@echo '    make safety          look for security vulnerabilities'
 	@echo '    make pylint          linter'
-	@echo '    make cc              show cyclomatic complexity (McNabe)'
+	@echo '    make cc              show cyclomatic complexity (McCabe)'
 	@echo '    make mi              show maintainability index score'
 	@echo '    make clean           cleanup all temporary files'
 	@echo '    make clean-venv      delete local venv'
