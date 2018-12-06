@@ -31,6 +31,7 @@ ${VENV_ACTIVATE}: requirements.txt
 	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}; \
 	${PIP} install --upgrade pip; \
 	${PIP} install -Ur requirements.txt; \
+	${PIP} install -e setup.py; \
 	touch ${VENV_ACTIVATE}
 
 
@@ -45,15 +46,13 @@ safety: venv ${VENV_BIN}/safety
 	${VENV_BIN}/safety check
 
 ${VENV_BIN}/safety:
-	${PIP} install safety; \
-	touch ${VENV_BIN}/safety
+	${PIP} install safety
 
 pylint: venv ${VENV_BIN}/pylint
-	${VENV_BIN}/pylint --disable=C ${PROJECT}/*.py
+	${VENV_BIN}/pylint --disable=C ${PROJECT}
 
 ${VENV_BIN}/pylint:
-	${PIP} install pylint; \
-	touch ${VENV_BIN}/pylint;
+	${PIP} install pylint
 
 cc: venv ${VENV_BIN}/radon
 	radon cc -n D -a -s ${PROJECT}/*.py
@@ -62,8 +61,7 @@ mi: venv ${VENV_BIN}/radon
 	radon mi ${PROJECT}/*.py
 
 ${VENV_BIN}/radon:
-	${PIP} install radon; \
-	touch ${VENV_BIN}/radon
+	${PIP} install radon
 
 quality: test pylint cc mi
 
