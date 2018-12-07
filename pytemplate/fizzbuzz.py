@@ -1,4 +1,4 @@
-class Fizz(object):
+class Fizz():
     def __init__(self, i):
         self.i = i
 
@@ -8,10 +8,9 @@ class Fizz(object):
     def __str__(self):
         if self.fire():
             return "fizz"
-        else:
-            return ""
+        return ""
 
-class Buzz(object):
+class Buzz():
     def __init__(self, i):
         self.i = i
 
@@ -21,18 +20,10 @@ class Buzz(object):
     def __str__(self):
         if self.fire():
             return "buzz"
-        else:
-            return ""
-
-class Number(object):
-    def __init__(self, i):
-        self.i = i
-
-    def __str__(self):
-        return str(self.i)
+        return ""
 
 
-class Composite(object):
+class Composite():
     def __init__(self, buzz, fizz, number):
         self.fizzbuzz = [f for f in [fizz, buzz] if f.fire()]
         self.number = number
@@ -43,16 +34,15 @@ class Composite(object):
     def __str__(self):
         if len(self.fizzbuzz) >  0:
             return "".join([str(f) for f in self.fizzbuzz])
-        else:
-            return str(self.number)
+        return str(self.number)
 
 
-class FizzBuzz(object):
+class FizzBuzz():
     def __init__(self, lenght):
         self.lenght = lenght
 
     def items(self):
-        return [str(Composite(Buzz(i), Fizz(i), Number(i))) for i in range(1, self.lenght+1)]
+        return [str(Composite(Buzz(i), Fizz(i), i)) for i in range(1, self.lenght+1)]
 
     def __str__(self):
         return "\n".join(self.items())
