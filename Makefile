@@ -21,7 +21,7 @@ default:
 	@echo '    make clean           cleanup all temporary files'
 	@echo '    make clean-venv      delete local venv'
 	@echo
-	@echo '    . ${VENV_ACTIVATE}      activate venv'
+	@echo '    . ${VENV_ACTIVATE}   activate venv'
 	@echo
 
 
@@ -31,12 +31,12 @@ ${VENV_ACTIVATE}: requirements.txt
 	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}; \
 	${PIP} install --upgrade pip; \
 	${PIP} install -Ur requirements.txt; \
-	${PIP} install -e setup.py; \
+	${PIP} install -e .; \
 	touch ${VENV_ACTIVATE}
 
 
 test: venv ${VENV_BIN}/coverage 
-	${VENV_BIN}/coverage run --omit=.venv/*,tests/* -m unittest discover -s tests/; \
+	${VENV_BIN}/coverage run --include=$(PROJECT)/*.py  -m unittest discover -s tests/; \
 	${VENV_BIN}/coverage report;
 
 ${VENV_BIN}/coverage:
