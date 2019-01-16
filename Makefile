@@ -87,3 +87,7 @@ clean-test:
 	rm -fr .tox/
 	rm -f .coverage
 	rm -fr htmlcov/
+
+wheel: venv
+	${PIP} install wheel
+	${PYTHON} setup.py bdist_wheel

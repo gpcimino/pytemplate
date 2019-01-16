@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -x
+
+#/opt/cmre/pytemplate/bin/python3
+#/home/giampaolo/projects/pytemplate
+dot="$(cd "$(dirname "$0")"; pwd)"
+path="$dot/build/opt"
+
+rm -rf build/
+mkdir -p build
+
+python3 -m venv --copies build/opt/cmre/pytemplate
+build/opt/cmre/pytemplate/bin/pip install --upgrade pip
+build/opt/cmre/pytemplate/bin/pip install -r requirements.txt
+build/opt/cmre/pytemplate/bin/pip install .
+
+find -type f  | xargs sed -i "s@$path@/opt@g"
+
+find build/  -iname *.pyc -exec rm {} \;
+find build/  -iname *.pyo -exec rm {} \;
+
+fpm \
+	-t rpm \
+	-s dir \
+	-n pytemplate \
+	-C build \
+	--verbose \
+	-d python36 \
+	.
+
+set +x
