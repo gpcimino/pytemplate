@@ -4,7 +4,13 @@ VENV_ACTIVATE=${VENV_BIN}/activate
 PYTHON=${VENV_BIN}/python3
 PIP=${VENV_BIN}/pip
 SYSPYTHON=/usr/bin/python3
-PROJECT=pytemplate
+#PROJECT=pytemplate
+ROOT_PATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+PROJECT:=$(shell basename ${ROOT_PATH})
+RPM_INSTALL_DIR:=/opt/acme/${PROJECT}
+RPM_BUILD_ROOT:=${ROOT_PATH}/build
+RPM_BUILD_HOME:=${RPM_BUILD_ROOT}${RPM_INSTALL_DIR}
+RPM_PIP:=${RPM_BUILD_HOME}/bin/pip
 
 
 default:
@@ -28,6 +34,7 @@ default:
 venv: ${VENV_ACTIVATE}
 
 ${VENV_ACTIVATE}: requirements.txt
+	@echo create .venv
 	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}; \
 	${PIP} install --upgrade pip; \
 	${PIP} install -Ur requirements.txt; \
@@ -88,31 +95,29 @@ clean-test:
 	rm -f .coverage
 	rm -fr htmlcov/
 
-wheel: venv
-	${PIP} install wheel
+wheel: venv ${VENV_BIN}/wheel
+	@echo make wheel
 	${PYTHON} setup.py bdist_wheel
 
+${VENV_BIN}/wheel:
+	@echo install wheel
+	${PIP} install wheel
 
-rpm:
-	#dot="$(cd "$(dirname "$0")"; pwd)"
-	dot=/home/giampaolo/projects/pytemplate
-	appname=${PROJECT}
-	install_dir=/opt/cmre/${appname}
-	build_root=${dot}/build
-	build_home=${build_root}${install_dir}
-	pip=${build_home}/bin/pip
-	rm -rf ${build_root}
-	mkdir -p ${build_root}
-	${SYSPYTHON} -m venv --copies ${build_home}
-	${pip} install --upgrade pip
-	${pip} install -r requirements.txt
-	${pip} install "$(ls -t -d -1  dist/* | head -n 1)"
-	${pip} uninstall -y pip
-
-	find ${build_root} -type f  | xargs sed -i "s@$build_root@@g"
-	find ${build_root} -iname *.pyc -exec rm {} \;
-	find ${build_root} -iname *.pyo -exec rm {} \;
-
-	rm -f ${appname}*.rpm
-	fpm -t rpm -s dir -n ${appname} -C ${build_root} --verbose -d python36 .
+rpm: wheel 
+	# add makes dependency to dist/*.rpm
+	rm -Rf ${RPM_BUILD_ROOT}
+	mkdir -p ${RPM_BUILD_ROOT}
+	# use --copies to avoid symb links in the venv
+	${SYSPYTHON} -m venv --copies ${RPM_BUILD_HOME}
+	${RPM_PIP} install --upgrade pip
+	${RPM_PIP} install -r requirements.txt
+	${RPM_PIP} install "$(shell ls -t -d -1  dist/* | head -n 1)"
+	# pip can be removed in the installation pkg
+	${RPM_PIP} uninstall -y pip
+	# make absolute paths local to root installation dir e.g. /opt/acme/, workaround to do not use virtaulenv(3)_tools
+	find ${RPM_BUILD_ROOT} -type f -exec sed -i "s@${RPM_BUILD_ROOT}@@g" {} \;
+	find ${RPM_BUILD_ROOT} -iname *.pyc -exec rm {} \;
+	find ${RPM_BUILD_ROOT} -iname *.pyo -exec rm {} \;
+	rm -f ${PROJECT}*.rpm
+	fpm -t rpm -s dir -n ${PROJECT} -C ${RPM_BUILD_ROOT} --verbose -d python36 .
 
