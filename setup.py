@@ -5,21 +5,28 @@ with open("requirements.txt") as rf:
     requirements = rf.readlines()
 with open("README.rst") as rf:
     readme = rf.read()
+with open("meta") as rf:
+    meta = { \
+        k.strip():v.strip() for k, v in \
+        [l.strip().split("=") \
+        for l in rf \
+        if l.strip() != '' and not l.strip().startswith("#")]}
 
 setup(
-    name='pytemplate',
-    version='0.1.0',
-    url="https://github.com/gpcimino/pytemplate",
-    description='A Python Project Template',
+    name=meta['NAME'],
+    version=meta['VERSION'],
+    url=meta['URL'],
+    description=meta['DESCRIPTION'],
     long_description=readme,
-    author='Giampaolo Cimino',
-    author_email='gcimino@gmail.com',
-    license='Apache-2.0',
+    author=meta['AUTHOR'],
+    author_email=meta['AUTHOR_EMAIL'],
+    license=meta['LICENSE'],
     classifiers=[
         'Development Status :: 1 - Planning',
         'Programming Language :: Python :: 3'
     ],
     keywords=['python'],
+    platforms=['any'],
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,

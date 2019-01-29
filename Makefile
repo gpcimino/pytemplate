@@ -4,14 +4,13 @@ VENV_ACTIVATE=${VENV_BIN}/activate
 PYTHON=${VENV_BIN}/python3
 PIP=${VENV_BIN}/pip
 SYSPYTHON=/usr/bin/python3
-#PROJECT=pytemplate
 ROOT_PATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT:=$(shell basename ${ROOT_PATH})
 RPM_INSTALL_DIR:=/opt/acme/${PROJECT}
 RPM_BUILD_ROOT:=${ROOT_PATH}/build
 RPM_BUILD_HOME:=${RPM_BUILD_ROOT}${RPM_INSTALL_DIR}
 RPM_PIP:=${RPM_BUILD_HOME}/bin/pip
-
+include meta
 
 default:
 	@echo "Makefile for $(PROJECT)"
@@ -26,6 +25,7 @@ default:
 	@echo '    make mi              show maintainability index score'
 	@echo '    make clean           cleanup all temporary files'
 	@echo '    make clean-venv      delete local venv'
+	@echo '    make clean-build     cleanup artifacts (rpms, wheels)'
 	@echo
 	@echo '    . ${VENV_ACTIVATE}   activate venv'
 	@echo
@@ -103,6 +103,7 @@ ${VENV_BIN}/wheel:
 	${PIP} install wheel
 
 rpm: wheel 
+	echo ${USER}
 	# add makes dependency to dist/*.rpm
 	rm -Rf ${RPM_BUILD_ROOT}
 	mkdir -p ${RPM_BUILD_ROOT}
@@ -126,9 +127,13 @@ rpm: wheel
                 -C ${RPM_BUILD_ROOT} \
                 --verbose \
                 -d python36 \
-                --rpm-user msadb \
-                --rpm-group msadb \
-                --version 0.1.0 \
+                --rpm-user ${USER}  \
+                --rpm-group ${USER} \
+                --version ${VERSION} \
+		--url ${URL} \
+		--license "${LICENSE}" \
+		--maintainer "${AUTHOR}" \
+		--description "${DESCRIPTION}" \
                 --before-install rpm/preinst \
                 --after-remove   rpm/postrm \
                 .
