@@ -1,0 +1,6 @@
+#!/bin/bash
+
+user=pytemplate
+
+userdel -f $user
+groupdel  $user	

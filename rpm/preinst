@@ -1,0 +1,11 @@
+#!/bin/bash
+
+user=pytemplate
+
+#create user if not exists
+if grep --quiet -c "^$user:" /etc/passwd; then
+	echo "$user exists"
+else
+	groupadd $user
+	useradd $user -g $user -s /sbin/nologin -c "msadb app user no login"
+fi
