@@ -82,6 +82,8 @@ clean-build:
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+	rm -f ${PROJECT}*.rpm
+	rm -f ${PROJECT}/meta
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -96,7 +98,9 @@ clean-test:
 
 wheel: venv ${VENV_BIN}/wheel
 	@echo make wheel
+	cp meta ${PROJECT}/
 	${PYTHON} setup.py bdist_wheel
+	rm -f ${PROJECT}/meta
 
 ${VENV_BIN}/wheel:
 	@echo install wheel
@@ -121,20 +125,20 @@ rpm: wheel
 	find ${RPM_BUILD_ROOT} -iname *.pyo -exec rm {} \;
 	rm -f ${PROJECT}*.rpm
 	fpm \
-                -t rpm \
-                -s dir \
-                -n ${PROJECT} \
-                -C ${RPM_BUILD_ROOT} \
-                --verbose \
-                -d python36 \
-                --rpm-user ${USER}  \
-                --rpm-group ${USER} \
-                --version ${VERSION} \
+		-t rpm \
+		-s dir \
+		-n ${PROJECT} \
+		-C ${RPM_BUILD_ROOT} \
+		--verbose \
+		-d python36 \
+		--rpm-user ${USER}  \
+		--rpm-group ${USER} \
+		--version ${VERSION} \
 		--url ${URL} \
 		--license "${LICENSE}" \
 		--maintainer "${AUTHOR}" \
 		--description "${DESCRIPTION}" \
-                --before-install rpm/preinst \
-                --after-remove   rpm/postrm \
-                .
+		--before-install rpm/preinst \
+		--after-remove   rpm/postrm \
+		.
 
