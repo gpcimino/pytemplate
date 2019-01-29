@@ -34,11 +34,10 @@ default:
 venv: ${VENV_ACTIVATE}
 
 ${VENV_ACTIVATE}: requirements.txt
-	@echo create .venv
-	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}; \
-	${PIP} install --upgrade pip; \
-	${PIP} install -Ur requirements.txt; \
-	${PIP} install -e .; \
+	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}
+	${PIP} install --upgrade pip
+	${PIP} install -Ur requirements.txt
+	${PIP} install -e .
 	touch ${VENV_ACTIVATE}
 
 
@@ -107,6 +106,7 @@ rpm: wheel
 	# add makes dependency to dist/*.rpm
 	rm -Rf ${RPM_BUILD_ROOT}
 	mkdir -p ${RPM_BUILD_ROOT}
+	mkdir -p ${RPM_BUILD_HOME}/etc
 	# use --copies to avoid symb links in the venv
 	${SYSPYTHON} -m venv --copies ${RPM_BUILD_HOME}
 	${RPM_PIP} install --upgrade pip
@@ -119,5 +119,17 @@ rpm: wheel
 	find ${RPM_BUILD_ROOT} -iname *.pyc -exec rm {} \;
 	find ${RPM_BUILD_ROOT} -iname *.pyo -exec rm {} \;
 	rm -f ${PROJECT}*.rpm
-	fpm -t rpm -s dir -n ${PROJECT} -C ${RPM_BUILD_ROOT} --verbose -d python36 .
+	fpm \
+                -t rpm \
+                -s dir \
+                -n ${PROJECT} \
+                -C ${RPM_BUILD_ROOT} \
+                --verbose \
+                -d python36 \
+                --rpm-user msadb \
+                --rpm-group msadb \
+                --version 0.1.0 \
+                --before-install rpm/preinst \
+                --after-remove   rpm/postrm \
+                .
 
