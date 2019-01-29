@@ -6,11 +6,12 @@ with open("requirements.txt") as rf:
 with open("README.rst") as rf:
     readme = rf.read()
 with open("meta") as rf:
-    meta = { \
-        k.strip():v.strip() for k, v in \
-        [l.strip().split("=") \
-        for l in rf \
-        if l.strip() != '' and not l.strip().startswith("#")]}
+    meta = {
+        k.strip():v.strip() for k, v in
+        [l.strip().split("=")
+        for l in rf
+        if l.strip() != '' and not l.strip().startswith("#")]
+    }
 
 setup(
     name=meta['NAME'],
