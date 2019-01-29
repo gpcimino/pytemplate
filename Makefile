@@ -82,6 +82,7 @@ clean-build:
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+	rm -f ${PROJECT}*.rpm
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
