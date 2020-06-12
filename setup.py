@@ -3,6 +3,9 @@ from setuptools import find_packages, setup
 
 with open("requirements.txt") as rf:
     requirements = rf.readlines()
+# to understand the statement below read https://packaging.python.org/discussions/install-requires-vs-requirements/
+requirements = list(set([re.split(' |@|;|==', r)[0] for r in requirements if r!='']))
+
 with open("README.rst") as rf:
     readme = rf.read()
 with open("meta") as rf:
@@ -30,6 +33,13 @@ setup(
     platforms=['any'],
     packages=find_packages(),
     include_package_data=True,
+    # package_dir={'pytemplate': 'pytemplate'},
+    # package_data={
+    #     'datazookeeper': [
+    #         'meta',
+    #         'etc/whatever'
+    #     ]
+    # },    
     zip_safe=False,
     install_requires=requirements,
     entry_points={

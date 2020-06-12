@@ -10,7 +10,14 @@ RPM_INSTALL_DIR:=/opt/acme/${PROJECT}
 RPM_BUILD_ROOT:=${ROOT_PATH}/build
 RPM_BUILD_HOME:=${RPM_BUILD_ROOT}${RPM_INSTALL_DIR}
 RPM_PIP:=${RPM_BUILD_HOME}/bin/pip
+BRANCH:=$(shell git rev-parse --abbrev-ref HEAD)
+HASH:=$(shell git rev-parse HEAD)
+FPM:=/usr/local/bin/fpm
 include meta
+WHEEL_FILE=${PROJECT}-${VERSION}-py3-none-any.whl
+RMP_FILE=${PROJECT}-${VERSION}-1.x86_64.rpm
+
+
 
 default:
 	@echo "Makefile for $(PROJECT)"
@@ -23,9 +30,11 @@ default:
 	@echo '    make pylint          linter'
 	@echo '    make cc              show cyclomatic complexity (McCabe)'
 	@echo '    make mi              show maintainability index score'
+	@echo '    make rpm             create RPM package with embedded python binaries'
 	@echo '    make clean           cleanup all temporary files'
 	@echo '    make clean-venv      delete local venv'
 	@echo '    make clean-build     cleanup artifacts (rpms, wheels)'
+	@echo '    make clean-pyc       cleanup python bn files (pyc, pyo) files'	
 	@echo
 	@echo '    . ${VENV_ACTIVATE}   activate venv'
 	@echo
@@ -37,6 +46,7 @@ ${VENV_ACTIVATE}: requirements.txt
 	test -d ${VENV_NAME} || ${SYSPYTHON} -m venv ${VENV_NAME}
 	${PIP} install --upgrade pip
 	${PIP} install -Ur requirements.txt
+	${PIP} install -Ur requirements-dev.txt	
 	${PIP} install -e .
 	touch ${VENV_ACTIVATE}
 
@@ -124,6 +134,7 @@ rpm: wheel
 	find ${RPM_BUILD_ROOT} -iname *.pyc -exec rm {} \;
 	find ${RPM_BUILD_ROOT} -iname *.pyo -exec rm {} \;
 	rm -f ${PROJECT}*.rpm
+    # add --summary <== readme: https://github.com/jordansissel/fpm/issues/1536	
 	fpm \
 		-t rpm \
 		-s dir \
